@@ -6,7 +6,7 @@ import {Label} from 'office-ui-fabric-react/lib/Label';
 import {Resources} from "./Resources";
 import {AzureUser} from "../AzureUser";
 import {Subscription} from "@azure/arm-subscriptions/esm/models";
-import {SubscriptionSelect} from "./SubscriptionSelect";
+import {SubscriptionSelect} from "./Subscriptions/SubscriptionSelect";
 import Dashboard from "./Dashboard/Dashboard";
 import {Separator} from 'office-ui-fabric-react/lib/Separator';
 import {Text} from 'office-ui-fabric-react/lib/Text';

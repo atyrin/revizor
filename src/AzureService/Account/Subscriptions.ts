@@ -1,5 +1,5 @@
 import {SubscriptionClient} from "@azure/arm-subscriptions";
-import {Location, Subscription} from "@azure/arm-subscriptions/esm/models";
+import {Location, Subscription, TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
 
 
 export class AzSubscriptions {
@@ -17,4 +17,7 @@ export class AzSubscriptions {
         return await this.client.subscriptions.listLocations(subscriptionId);
     }
 
+    tenants = async (): Promise<Array<TenantIdDescription>> => {
+        return await this.client.tenants.list();
+    }
 }

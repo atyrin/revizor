@@ -18,10 +18,11 @@ const createCredentials = (token: string): ServiceClientCredentials => {
 }
 
 
-const acquireToken = async (msalInstance: Msal.UserAgentApplication): Promise<ServiceClientCredentials> => {
+const acquireToken = async (msalInstance: Msal.UserAgentApplication, account: Msal.Account): Promise<ServiceClientCredentials> => {
     console.log("Acquire token")
     const tokenRequest: Msal.AuthenticationParameters = {
-        scopes: AZURE_TOKEN_SCOPE
+        scopes: AZURE_TOKEN_SCOPE,
+        sid: account.sid
     };
 
     msalInstance.handleRedirectCallback((error, response) => {
@@ -52,14 +53,14 @@ const acquireToken = async (msalInstance: Msal.UserAgentApplication): Promise<Se
 
 const performLogin = async (msalInstance: Msal.UserAgentApplication) => {
     const loginRequest: Msal.AuthenticationParameters = {
-        scopes: AZURE_AUTHENTICATION_SCOPE,
+        scopes: AZURE_AUTHENTICATION_SCOPE
     };
 
     try {
         console.log("Start authentication process in popup windows")
         const response = await msalInstance.loginPopup(loginRequest);
         console.log(`User ${response.account.userName} was successfully authenticated`)
-        return await acquireToken(msalInstance);
+        return await acquireToken(msalInstance, response.account);
     } catch (err) {
         console.error("Failed to authenticate user")
     }
@@ -79,8 +80,8 @@ const getMsalInstance = (appId: string, tenantId: string): Msal.UserAgentApplica
 export const getServiceClient = async (appId: string, tenantId: string): Promise<ServiceClientCredentials> => {
     const msalInstance: Msal.UserAgentApplication = getMsalInstance(appId, tenantId)
     if (msalInstance.getAccount()) {
-        console.log(msalInstance.getAccount())
-        return await acquireToken(msalInstance);
+        const account = msalInstance.getAccount()
+        return await acquireToken(msalInstance, account);
     }
 
     return await performLogin(msalInstance)

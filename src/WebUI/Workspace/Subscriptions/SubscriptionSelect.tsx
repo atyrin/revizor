@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useState} from "react";
-import {AzSubscriptions} from "../../AzureService/Account/Subscriptions";
+import {AzSubscriptions} from "../../../AzureService/Account/Subscriptions";
 
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
@@ -74,4 +74,6 @@ const loadSubscriptions = async (subscriptionClient: AzSubscriptions, setSubscri
     if (subscriptions && subscriptions.length > 0)
         setSubscription(subscriptions[0])
     setSubscriptions(subscriptions)
+    const tenants = await subscriptionClient.tenants()
+    console.log(tenants)
 }

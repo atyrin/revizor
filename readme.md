@@ -9,6 +9,7 @@ Serverless portal for monitoring resource leaks in your Microsoft subscriprions
   * Enter Redirect URLs (URL of a current app or localhost)
   * Allow API permission to Azure Service Management (user_impersonation)
   * Allow API permissions to Microsoft.Graph (at least for User.Read)
+  * In case of different UPN and e-mail switch to [sid token configuration](https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/623)
 
 
 ## Development
