@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const DashboardCard: React.FunctionComponent<Props> = (props: Props) => {
-    if (props.value) {
+    if (props.value !== undefined) {
         return (
             <Card key={props.report.key} aria-label="Clickable horizontal card " onClick={() => {
             }} tokens={cardTokens}>
