@@ -62,7 +62,7 @@ const renderSubscriptionsCombobox = (subscriptions: Subscription[], currentSubsc
             autoComplete="on"
             options={comboboxValues}
             onChange={(ev, option): void => {
-                const selectedSubscription = subscriptions.filter(s => s.subscriptionId === option?.key)[0];
+                const selectedSubscription = subscriptions.filter(s => s.id === option?.key)[0];
                 if (selectedSubscription.id !== currentSubscription.id) setSubscription(selectedSubscription);
             }}
         />
