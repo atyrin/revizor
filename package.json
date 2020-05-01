@@ -1,0 +1,35 @@
+{
+  "name": "revizor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-dev": "webpack -w --config webpack.dev.js",
+    "start-dev": "webpack --config webpack.dev.js && node static/server.js",
+    "build-prod": "webpack --config webpack.prod.js"
+  },
+  "author": "atyrin",
+  "license": "MIT License",
+  "dependencies": {
+    "@azure/arm-authorization": "^8.3.2",
+    "@azure/arm-compute": "^13.0.0",
+    "@azure/arm-resourcegraph": "^2.0.0",
+    "@azure/arm-subscriptions": "^2.0.0",
+    "@azure/ms-rest-browserauth": "^0.1.4",
+    "@fluentui/react": "^7.105.10",
+    "@types/d3": "^5.7.2",
+    "@types/react": "^16.9.32",
+    "@types/react-dom": "^16.9.6",
+    "@uifabric/react-cards": "^0.109.64",
+    "msal": "^1.2.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
+}
