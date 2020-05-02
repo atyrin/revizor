@@ -1,40 +1,29 @@
 import * as React from "react";
+import {useState} from "react";
 
 import {AppBar} from "./AppBar";
 
-import Workspace from "./Workspace/Workspace";
-import {AzureUser} from "./AzureUser";
+import {Workspace} from "./Workspace/Workspace";
 import Login from "./Login/Login";
+import {AzureUser} from "./AzureUser";
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
-interface Props {
-}
 
-interface State {
-    currentAccount?: AzureUser
-    azureClient?: ServiceClientCredentials
-}
+//todo: handle logout
+export const App: React.FunctionComponent = () => {
+    const [currentAccount, setCurrentAccount] = useState<AzureUser>(null);
+    const [azureClient, setAzureClient] = useState<ServiceClientCredentials>(null);
 
-
-export default class App extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {}
-    }
-
-    render() {
-        return (
-            <div>
-                <AppBar currentAccount={this.state.currentAccount}
-                        logout={() => this.setState({currentAccount: null})}/>
-                <Workspace currentAccount={this.state.currentAccount}
-                           setAccount={(acc) => this.setState({currentAccount: acc})}
-                           azureClient={this.state.azureClient}/>
-                <Login currentAccount={this.state.currentAccount}
-                       setAccount={(acc) => this.setState({currentAccount: acc})}
-                       azureClient={this.state.azureClient}
-                       setAzureClient={(client) => this.setState({azureClient: client})}/>
-            </div>
-        )
-    }
-}
+    return (
+        <div>
+            <AppBar currentAccount={currentAccount}
+                    logout={() => setCurrentAccount(null)}/>
+            <Workspace currentAccount={currentAccount}
+                       azureClient={azureClient}
+                       setAzureClient={(client) => setAzureClient(client)}/>
+            <Login currentAccount={currentAccount}
+                   setAccount={(acc) => setCurrentAccount(acc)}
+                   setAzureClient={(client) => setAzureClient(client)}/>
+        </div>
+    )
+};

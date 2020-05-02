@@ -3,6 +3,7 @@ import {Card, ICardSectionStyles, ICardSectionTokens, ICardTokens} from "@uifabr
 import {IconButton} from "@fluentui/react/lib/Button";
 import {Text} from "office-ui-fabric-react";
 import {Report} from "../Workspace/Reports";
+import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 
 interface Props {
     report: Report
@@ -10,7 +11,7 @@ interface Props {
 }
 
 export const DashboardCard: React.FunctionComponent<Props> = (props: Props) => {
-    if (props.value) {
+    if (props.value !== undefined) {
         return (
             <Card key={props.report.key} aria-label="Clickable horizontal card " onClick={() => {
             }} tokens={cardTokens}>
@@ -35,7 +36,7 @@ export const DashboardCard: React.FunctionComponent<Props> = (props: Props) => {
         }}
               tokens={cardTokens}>
             <Card.Section>
-                <Text>Loading...</Text>
+                <Spinner size={SpinnerSize.large} label="Loading..." ariaLive="assertive" labelPosition="right"/>
             </Card.Section>
         </Card>)
 };
