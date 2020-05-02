@@ -45,14 +45,16 @@ export const SubscriptionSelect: React.FunctionComponent<Props> = (props: Props)
 
     return (
         <div>
-            <Stack horizontal={true} tokens={{childrenGap: 20, padding: 10}}>
+            <Stack horizontal={true} tokens={{padding: 10}}>
                 <Stack.Item>
-                    <Label>Working subscription</Label>
+                    <Label style={{width: 180}}>Working subscription</Label>
                 </Stack.Item>
-                <Stack.Item disableShrink>
-                    {subscriptions ? renderSubscriptionsCombobox(subscriptions, props.currentSubscription, props.setSubscription) :
-                        <div/>}
-                </Stack.Item>
+                {subscriptions ?
+                    <Stack.Item
+                        disableShrink>{renderSubscriptionsCombobox(subscriptions, props.currentSubscription, props.setSubscription)}
+                    </Stack.Item> :
+                    <span/>
+                }
                 <Stack.Item>
                     <DefaultButton
                         onClick={() => loadSubscriptions(subscriptionClient, setSubscriptions, props.currentSubscription, props.setSubscription)}>
@@ -64,6 +66,7 @@ export const SubscriptionSelect: React.FunctionComponent<Props> = (props: Props)
     )
 };
 
+//todo: move to single combobox with dirs
 const renderSubscriptionsCombobox = (subscriptions: Subscription[], currentSubscription, setSubscription: (sub: Subscription) => void) => {
 
     if (!subscriptions) return <Label>{"No subscription loaded"}</Label>
@@ -76,8 +79,7 @@ const renderSubscriptionsCombobox = (subscriptions: Subscription[], currentSubsc
     return (
         <ComboBox
             selectedKey={currentSubscription ? currentSubscription.id : subscriptions[0].id}
-            style={{width: 300}}
-            allowFreeform
+            style={{width: 310}}
             autoComplete="on"
             options={comboboxValues}
             onChange={(ev, option): void => {

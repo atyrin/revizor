@@ -7,6 +7,7 @@ import {ServiceClientCredentials} from "@azure/ms-rest-js";
 import {Label} from 'office-ui-fabric-react/lib/Label';
 import {ComboBox, Stack} from 'office-ui-fabric-react';
 import {TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
+import {Spinner} from 'office-ui-fabric-react/lib/Spinner';
 
 interface Props {
     azureClient: ServiceClientCredentials
@@ -28,13 +29,13 @@ export const DirectorySelect: React.FunctionComponent<Props> = (props: Props) =>
 
     return (
         <div>
-            <Stack horizontal={true} tokens={{childrenGap: 20, padding: 10}}>
+            <Stack horizontal={true} tokens={{padding: 10}}>
                 <Stack.Item>
-                    <Label>Working directory</Label>
+                    <Label style={{width: 180}}>Working directory</Label>
                 </Stack.Item>
                 <Stack.Item disableShrink>
                     {directories ? renderDirectoriesCombobox(directories, props.currentDirectory, props.setDirectory) :
-                        <Label>{"Directory placeholder"}</Label>}
+                        <Spinner label="Loading directories..." ariaLive="assertive" labelPosition="left"/>}
                 </Stack.Item>
             </Stack>
         </div>
@@ -54,8 +55,7 @@ const renderDirectoriesCombobox = (directories: TenantIdDescription[], currentDi
     return (
         <ComboBox
             selectedKey={currentDirectory ? currentDirectory.id : directories[0].id}
-            style={{width: 300}}
-            allowFreeform
+            style={{width: 310}}
             autoComplete="on"
             options={comboboxValues}
             onChange={(ev, option): void => {
