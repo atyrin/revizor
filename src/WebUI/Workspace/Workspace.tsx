@@ -1,57 +1,45 @@
 import * as React from "react";
+import {useState} from "react";
 
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
 import {Label} from 'office-ui-fabric-react/lib/Label';
 import {Resources} from "./Resources";
 import {AzureUser} from "../AzureUser";
-import {Subscription} from "@azure/arm-subscriptions/esm/models";
-import {SubscriptionSelect} from "./Subscriptions/SubscriptionSelect";
 import Dashboard from "./Dashboard/Dashboard";
 import {Separator} from 'office-ui-fabric-react/lib/Separator';
 import {Text} from 'office-ui-fabric-react/lib/Text';
+import {ResourcesContext} from "./Subscriptions/ResourcesContext";
+import {Subscription} from "@azure/arm-subscriptions/esm/models";
 
 interface Props {
     currentAccount?: AzureUser;
-    setAccount: (acc: AzureUser) => void;
     azureClient?: ServiceClientCredentials
+    setAzureClient: (client: ServiceClientCredentials) => void;
 }
 
-interface State {
-    subscription?: Subscription;
-}
+export const Workspace: React.FunctionComponent<Props> = (props: Props) => {
+    const [subscription, setSubscription] = useState<Subscription>(null);
 
-
-export default class Workspace extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {}
-    }
-
-    render() {
-        console.log(`Current Account: ${this.props.currentAccount}`)
-
-        if (!this.props.currentAccount) {
-            return (
-                <Label>Please login....</Label>
-            )
-        }
-
+    if (!props.currentAccount) {
         return (
-            <div>
-                <SubscriptionSelect credentials={this.props.azureClient}
-                                    currentSubscription={this.state.subscription}
-                                    setSubscription={(s: Subscription) => this.setState({subscription: s})}/>
-                <Separator><Text style={textStyle}>Dashboard</Text></Separator>
-                <Dashboard credentials={this.props.azureClient} currentSubscription={this.state.subscription}/>
-
-                <Separator><Text style={textStyle}>Reports</Text></Separator>
-                <Resources credentials={this.props.azureClient} currentSubscription={this.state.subscription}/>
-            </div>
-
+            <Label>Please login....</Label>
         )
     }
-}
+
+    return (
+        <div>
+            <ResourcesContext azureClient={props.azureClient} setAzureClient={client => props.setAzureClient(client)}
+                              currentSubscription={subscription} setSubscription={s => setSubscription(s)}/>
+            <Separator><Text style={textStyle}>Dashboard</Text></Separator>
+            <Dashboard credentials={props.azureClient} currentSubscription={subscription}/>
+
+            <Separator><Text style={textStyle}>Reports</Text></Separator>
+            <Resources credentials={props.azureClient} currentSubscription={subscription}/>
+        </div>
+    )
+};
+
 
 const textStyle = {
     fontFamily: 'Monaco, Menlo, Consolas',

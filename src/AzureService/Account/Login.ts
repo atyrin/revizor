@@ -18,9 +18,11 @@ const createCredentials = (token: string): ServiceClientCredentials => {
 }
 
 
-const acquireToken = async (msalInstance: Msal.UserAgentApplication, account: Msal.Account): Promise<ServiceClientCredentials> => {
-    console.log("Acquire token")
+const acquireToken = async (msalInstance: Msal.UserAgentApplication, account: Msal.Account, tenantId: string = null): Promise<ServiceClientCredentials> => {
+    const currentAuthority = getAuthorityUrl(tenantId);
+    console.log(`Acquire token for authority: ${currentAuthority}`)
     const tokenRequest: Msal.AuthenticationParameters = {
+        authority: currentAuthority,
         scopes: AZURE_TOKEN_SCOPE,
         sid: account.sid
     };
@@ -67,23 +69,27 @@ const performLogin = async (msalInstance: Msal.UserAgentApplication) => {
 }
 
 const getMsalInstance = (appId: string, tenantId: string): Msal.UserAgentApplication => {
-    const authorityResource = tenantId ? tenantId : "common"
     const msalConfig: Msal.Configuration = {
         auth: {
             clientId: appId,
-            authority: AZURE_DEFAULT_AUTHORITY_URL + authorityResource
+            authority: getAuthorityUrl(tenantId)
         }
     };
     return new Msal.UserAgentApplication(msalConfig);
 }
 
+const getAuthorityUrl = (tenantId: string) => {
+    const authorityResource = tenantId ? tenantId : "common"
+    return AZURE_DEFAULT_AUTHORITY_URL + authorityResource
+}
+
 export const getServiceClient = async (appId: string, tenantId: string): Promise<ServiceClientCredentials> => {
+    console.log(`Create Azure client for tenantId: ${tenantId}`)
     const msalInstance: Msal.UserAgentApplication = getMsalInstance(appId, tenantId)
     if (msalInstance.getAccount()) {
         const account = msalInstance.getAccount()
-        return await acquireToken(msalInstance, account);
+        return await acquireToken(msalInstance, account, tenantId);
     }
-
     return await performLogin(msalInstance)
 }
 

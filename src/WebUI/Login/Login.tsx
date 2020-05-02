@@ -10,14 +10,12 @@ import ItemsStorage from "../Utils/Storage";
 interface Props {
     currentAccount?: AzureUser;
     setAccount: (acc: AzureUser) => void;
-    azureClient?: ServiceClientCredentials
     setAzureClient: (client: ServiceClientCredentials) => void;
 }
 
 interface State {
     clientId?: string
     tenantId?: string
-    client?: ServiceClientCredentials
     isInitiateDone: boolean
 }
 

@@ -1,48 +1,67 @@
 import * as React from "react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {AzSubscriptions} from "../../../AzureService/Account/Subscriptions";
 
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
 import {Label} from 'office-ui-fabric-react/lib/Label';
 import {ComboBox, DefaultButton, Stack} from 'office-ui-fabric-react';
-import {Subscription} from "@azure/arm-subscriptions/esm/models";
+import {Subscription, TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
 
 interface Props {
-    credentials: ServiceClientCredentials
+    azureClient: ServiceClientCredentials
     currentSubscription: Subscription;
     setSubscription: (sub: Subscription) => void;
+    directory: TenantIdDescription;
 }
 
 
 export const SubscriptionSelect: React.FunctionComponent<Props> = (props: Props) => {
     const [subscriptions, setSubscriptions] = useState(null);
+    let subscriptionClient;
+    if (props.azureClient) {
+        subscriptionClient = new AzSubscriptions(props.azureClient);
+    }
 
-    if (!props.credentials) {
+    useEffect(() => {
+        console.log(`[SubscriptionSelect] Current azure client was changed. Recreate subscription client`)
+        if (props.azureClient) {
+            subscriptionClient = new AzSubscriptions(props.azureClient);
+            setSubscriptions(null)
+            props.setSubscription(null)
+        }
+    }, [props.azureClient])
+
+    useEffect(() => {
+        console.log(`[SubscriptionSelect] Current directory was changed. Clear subscription list`)
+        setSubscriptions(null)
+        props.setSubscription(null)
+    }, [props.directory])
+
+
+    if (!props.azureClient) {
         return (<div/>)
     }
-    const subscriptionClient = new AzSubscriptions(props.credentials);
-    //loadSubscriptions(subscriptionClient, setSubscriptions)
-
 
     return (
         <div>
             <Stack horizontal={true} tokens={{childrenGap: 20, padding: 10}}>
                 <Stack.Item>
-                    <DefaultButton
-                        onClick={() => loadSubscriptions(subscriptionClient, setSubscriptions, props.setSubscription)}>
-                        {subscriptions ? "Reload subscriptions" : "Load subscriptions"}
-                    </DefaultButton>
+                    <Label>Working subscription</Label>
                 </Stack.Item>
                 <Stack.Item disableShrink>
                     {subscriptions ? renderSubscriptionsCombobox(subscriptions, props.currentSubscription, props.setSubscription) :
-                        <Label>{"Click show to load"}</Label>}
+                        <div/>}
+                </Stack.Item>
+                <Stack.Item>
+                    <DefaultButton
+                        onClick={() => loadSubscriptions(subscriptionClient, setSubscriptions, props.currentSubscription, props.setSubscription)}>
+                        {subscriptions ? "Reload" : "Load subscriptions"}
+                    </DefaultButton>
                 </Stack.Item>
             </Stack>
         </div>
-
     )
-
 };
 
 const renderSubscriptionsCombobox = (subscriptions: Subscription[], currentSubscription, setSubscription: (sub: Subscription) => void) => {
@@ -51,29 +70,26 @@ const renderSubscriptionsCombobox = (subscriptions: Subscription[], currentSubsc
     if (subscriptions.length === 0) return <Label>{"Empty subscriptions list"}</Label>
 
     const comboboxValues = subscriptions.map(sub => {
-        return ({key: sub.id, text: sub.displayName, raw: sub})
+        return ({key: sub.id, text: sub.displayName})
     })
 
     return (
         <ComboBox
-            selectedKey={currentSubscription ? currentSubscription.id : undefined}
+            selectedKey={currentSubscription ? currentSubscription.id : subscriptions[0].id}
             style={{width: 300}}
             allowFreeform
             autoComplete="on"
             options={comboboxValues}
             onChange={(ev, option): void => {
                 const selectedSubscription = subscriptions.filter(s => s.id === option?.key)[0];
-                if (selectedSubscription.id !== currentSubscription.id) setSubscription(selectedSubscription);
+                if (!currentSubscription || selectedSubscription.id !== currentSubscription.id) setSubscription(selectedSubscription);
             }}
         />
     )
 }
 
-const loadSubscriptions = async (subscriptionClient: AzSubscriptions, setSubscriptions: (subs: Subscription[]) => void, setSubscription: (sub: Subscription) => void) => {
+const loadSubscriptions = async (subscriptionClient: AzSubscriptions, setSubscriptions: (subs) => void, currentSub: Subscription, setSubscription: (sub) => void) => {
     const subscriptions = await subscriptionClient.list();
-    if (subscriptions && subscriptions.length > 0)
-        setSubscription(subscriptions[0])
+    if (!currentSub && subscriptions && subscriptions.length > 0) setSubscription(subscriptions[0])
     setSubscriptions(subscriptions)
-    const tenants = await subscriptionClient.tenants()
-    console.log(tenants)
 }
