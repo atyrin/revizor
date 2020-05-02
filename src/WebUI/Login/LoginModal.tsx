@@ -1,8 +1,7 @@
 import * as React from 'react';
-import {DefaultButton, IconButton, IIconProps, Modal,} from 'office-ui-fabric-react';
+import {Modal, PrimaryButton,} from 'office-ui-fabric-react';
 import {TextField} from "office-ui-fabric-react/lib/TextField";
-
-const cancelIcon: IIconProps = {iconName: 'Cancel'};
+import {Text} from 'office-ui-fabric-react/lib/Text';
 
 interface Props {
     isModalOpen: boolean
@@ -22,43 +21,41 @@ export const LoginModal: React.FunctionComponent<Props> = (props: Props) => {
             isOpen={props.isModalOpen}
             onDismiss={() => props.closeModal()}
             isBlocking={false}
-            dragOptions={undefined}
+            dragOptions={undefined} styles={modal}
+
         >
-            <div>
-                <span>Login</span>
-                <IconButton
-                    iconProps={cancelIcon}
-                    styles={iconButtonStyles}
-                    ariaLabel="Close login form"
-                    onClick={() => props.closeModal()}
-                />
+            <div style={title}>
+                <Text variant={"mediumPlus"}>Authentication parameters</Text>
             </div>
             <div style={{padding: '0 24px 24px 24px'}}>
-
-                <div>
-                    <p>
-                        Input application id from you Azure Active Directory. And optionally Directory Id if you app
-                        configured only for usage in single directory.
-                    </p>
-                </div>
-                <TextField label="Application ID"
+                <p>
+                    Input application id from you Azure Active Directory. And optionally Directory Id if you app
+                    configured only for usage in single directory.
+                </p>
+                <TextField label="Application ID" required
                            onChange={((event, newValue) => props.updateClientId(newValue))}
                            value={props.clientId}/>
-                <TextField label="Directory ID"
+                <TextField label="Directory ID (optional)"
                            onChange={((event, newValue) => props.updateTenantId(newValue))}
                            value={props.tenantId}/>
-                <DefaultButton onClick={() => props.triggerAuth()}>
-                    AUTH
-                </DefaultButton>
+                <div style={{display: 'flex'}}>
+                    <PrimaryButton
+                        style={{marginLeft: 'auto', marginTop: 10}}
+                        onClick={() => props.triggerAuth()}>
+                        Log in
+                    </PrimaryButton>
+                </div>
+
             </div>
         </Modal>
     );
 };
 
-const iconButtonStyles = {
-    root: {
-        marginLeft: 'auto',
-        marginTop: '4px',
-        marginRight: '2px',
+const modal = {
+    main: {
+        maxWidth: 800
     }
+}
+const title = {
+    margin: '20'
 };
