@@ -13,6 +13,7 @@
   "dependencies": {
     "@azure/arm-authorization": "^8.3.2",
     "@azure/arm-compute": "^13.0.0",
+    "@azure/arm-network": "^21.0.0",
     "@azure/arm-resourcegraph": "^2.0.0",
     "@azure/arm-subscriptions": "^2.0.0",
     "@azure/ms-rest-browserauth": "^0.1.4",
