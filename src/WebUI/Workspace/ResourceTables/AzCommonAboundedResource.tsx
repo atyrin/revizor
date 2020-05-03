@@ -3,11 +3,14 @@ import ResourceGraph, {ResourceGraphData} from "../../../AzureService/ResourceGr
 import {Table} from "../../Components/Table";
 import {Report} from "../Reports";
 import {Text} from 'office-ui-fabric-react/lib/Text';
+import {IAzResource} from "../../../AzureService/Compute/AzResource/AzResource";
+import {HttpOperationResponse} from "@azure/ms-rest-js";
 
 
 interface Props {
     graphClient?: ResourceGraph;
     report: Report;
+    resourceClient: IAzResource
 }
 
 interface State {
@@ -29,18 +32,18 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
     }
 
     componentDidMount(): void {
-        if (this.props.graphClient) this.loadDate();
+        if (this.props.graphClient) this.loadTableData();
     }
 
     componentDidUpdate(prevProps: Props) {
         const isReportChanged = prevProps.report !== this.props.report
         const isGraphClientUpdated = prevProps.graphClient !== this.props.graphClient
         if ((isGraphClientUpdated || isReportChanged) && this.props.graphClient && this.props.report) {
-            this.loadDate()
+            this.loadTableData()
         }
     }
 
-    private loadDate = async () => {
+    private loadTableData = async () => {
         const graphOutput = await this.props.graphClient.query(this.props.report.query);
         const data: ResourceGraphData = graphOutput.data;
         const items = data.rows.map(
@@ -53,13 +56,22 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
         this.setState({columns: data.columns, items: items})
     }
 
-    private deleteAction(items: TableItem[]) {
+    private deleteAction = async (items: TableItem[]) => {
         //todo
         if (items.length === 1) {
-            alert(`Delete ${items[0].id}`)
+            const item = items[0];
+            console.log(`Deleting item: ${item.resourceGroup} ${item.name}`)
+            const response: HttpOperationResponse = await this.props.resourceClient.delete(item.resourceGroup, item.name)
+            console.log(`Response code: ${response.status}`)
+            if (response.status !== 202) {
+                alert(`Failure during delete : ${response.bodyAsText}`)
+                return;
+            }
+            this.loadTableData()
             return;
         }
-        alert(`Delete all ${items.length} items`)
+        alert(`Are you sure want to delete all ${items.length} items?`)
+        alert(`Ok, but currently this feature is unavailable`)
     }
 
     render() {

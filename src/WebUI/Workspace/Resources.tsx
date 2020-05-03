@@ -6,25 +6,27 @@ import ResourceGraph from "../../AzureService/ResourceGraph/ResourceGraph";
 import {ComboBox} from "office-ui-fabric-react";
 import {Report, REPORTS} from "./Reports";
 import AzCommonAboundedResource from "./ResourceTables/AzCommonAboundedResource";
+import {AzureResourceFactory, IAzResource} from "../../AzureService/Compute/AzResource/AzResource";
 
 
 interface Props {
-    credentials: ServiceClientCredentials
+    azureClient: ServiceClientCredentials
     currentSubscription: Subscription
 }
 
 
 export const Resources: React.FunctionComponent<Props> = (props: Props) => {
-    const [currentReport, setCurrentReport] = useState(REPORTS[0]);
+    const [currentReport, setCurrentReport] = useState<Report>(REPORTS[0]);
 
     if (props.currentSubscription) {
-        const resourceGraphClient = new ResourceGraph(props.credentials, [props.currentSubscription.subscriptionId])
+        const resourceGraphClient = new ResourceGraph(props.azureClient, [props.currentSubscription.subscriptionId])
+        const resourceClient = getAzResourceClient(currentReport, props.azureClient, props.currentSubscription)
 
         return (
             <div>
                 <SelectReport selectedReport={currentReport}
                               setSelectedReport={(report) => setCurrentReport(report)}/>
-                {getComponent(currentReport, resourceGraphClient)}
+                {getComponent(currentReport, resourceGraphClient, resourceClient)}
             </div>
         )
     }
@@ -33,10 +35,13 @@ export const Resources: React.FunctionComponent<Props> = (props: Props) => {
             Please, select a subscription for resources view
         </div>
     )
-
 };
 
-const getComponent = (report: Report, resourceGraphClient: ResourceGraph) => {
+const getAzResourceClient = (report: Report, azureClient: ServiceClientCredentials, subscription: Subscription) => {
+    return AzureResourceFactory.create(report.type, azureClient, subscription.subscriptionId)
+}
+
+const getComponent = (report: Report, resourceGraphClient: ResourceGraph, resourceClient: IAzResource) => {
     switch (report.key) {
         case "AboundedNetworkInterface":
         case "UnassociatedNetworkSecurityGroups":
@@ -45,7 +50,7 @@ const getComponent = (report: Report, resourceGraphClient: ResourceGraph) => {
         case "AboundedPublicIPWithNetworkInterface":
         case "AboundedManagedDisks":
             return (<AzCommonAboundedResource graphClient={resourceGraphClient}
-                                              report={report}/>)
+                                              report={report} resourceClient={resourceClient}/>)
         default:
             return (<div>TODO: selected report in development</div>)
     }

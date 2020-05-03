@@ -1,8 +1,9 @@
-enum AzResourceTypes{
+export enum AzResourceTypes{
     VirtualMachine,
     ManagedDisk,
     ManagedSnapshot,
     NetworkInterface,
     PublicIP,
-    NetworkSecurityGroup
+    NetworkSecurityGroup,
+    ResourceGroup
 }
