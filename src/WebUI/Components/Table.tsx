@@ -212,6 +212,7 @@ export class Table extends React.Component<Props, IDetailsListDocumentsExampleSt
         if (previousProps.items !== this.props.items) {
             this.setState({items: this.props.items})
             this._allItems = this.props.items
+            this._selection.setAllSelected(false);
         }
         if (previousState.isModalSelection !== this.state.isModalSelection && !this.state.isModalSelection) {
             this._selection.setAllSelected(false);
