@@ -29,8 +29,8 @@ export const LoginModal: React.FunctionComponent<Props> = (props: Props) => {
             </div>
             <div style={{padding: '0 24px 24px 24px'}}>
                 <p>
-                    Input application id from you Azure Active Directory. And optionally Directory Id if you app
-                    configured only for usage in single directory.
+                    Input Application ID from your Azure Active Directory. And optionally Directory ID if the app was
+                    configured only for use in a single directory.
                 </p>
                 <TextField label="Application ID" required
                            onChange={((event, newValue) => props.updateClientId(newValue))}

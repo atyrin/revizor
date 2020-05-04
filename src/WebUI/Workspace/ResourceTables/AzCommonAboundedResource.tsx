@@ -3,17 +3,10 @@ import ResourceGraph, {ResourceGraphData} from "../../../AzureService/ResourceGr
 import {Table} from "../../Components/Table";
 import {Report} from "../Reports";
 import {Text} from 'office-ui-fabric-react/lib/Text';
-
-
-interface Props {
-    graphClient?: ResourceGraph;
-    report: Report;
-}
-
-interface State {
-    columns?: any;
-    items?: any;
-}
+import {IAzResource} from "../../../AzureService/Compute/AzResource/AzResource";
+import {HttpOperationResponse} from "@azure/ms-rest-js";
+import {Operation, OperationProgressPanel} from "../../Components/OperationProgressPanel";
+import {MessageBarType} from "office-ui-fabric-react";
 
 interface TableItem {
     id: string;
@@ -21,26 +14,44 @@ interface TableItem {
     resourceGroup: string;
 }
 
+interface Props {
+    graphClient?: ResourceGraph;
+    report: Report;
+    resourceClient: IAzResource
+}
+
+interface State {
+    columns?: any;
+    items?: any;
+    isPanelOpen: boolean;
+    isPanelCloseLocked: boolean
+    operations: Operation[]
+}
+
 
 export default class AzCommonAboundedResource extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {}
+        this.state = {
+            isPanelOpen: false,
+            isPanelCloseLocked: false,
+            operations: []
+        }
     }
 
     componentDidMount(): void {
-        if (this.props.graphClient) this.loadDate();
+        if (this.props.graphClient) this.loadTableData();
     }
 
     componentDidUpdate(prevProps: Props) {
         const isReportChanged = prevProps.report !== this.props.report
         const isGraphClientUpdated = prevProps.graphClient !== this.props.graphClient
         if ((isGraphClientUpdated || isReportChanged) && this.props.graphClient && this.props.report) {
-            this.loadDate()
+            this.loadTableData()
         }
     }
 
-    private loadDate = async () => {
+    private loadTableData = async () => {
         const graphOutput = await this.props.graphClient.query(this.props.report.query);
         const data: ResourceGraphData = graphOutput.data;
         const items = data.rows.map(
@@ -53,13 +64,40 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
         this.setState({columns: data.columns, items: items})
     }
 
-    private deleteAction(items: TableItem[]) {
-        //todo
-        if (items.length === 1) {
-            alert(`Delete ${items[0].id}`)
-            return;
+    private deleteResource = async (item: TableItem, operation: Operation) => {
+        console.log(`Deleting item: ${item.resourceGroup} ${item.name}`)
+        try {
+            const response: HttpOperationResponse = await this.props.resourceClient.delete(item.resourceGroup, item.name)
+            console.log(`Response code: ${response.status}`)
+            operation.state = "Successfully Finished"
+            operation.result = MessageBarType.success
         }
-        alert(`Delete all ${items.length} items`)
+        catch (e) {
+            const error = e as Error
+            operation.result = MessageBarType.error
+            operation.state = `Error: ${error.message}`
+            console.log(e)
+        }
+    }
+
+    private deleteAction = async (items: TableItem[]) => {
+        //todo: switch to bulk async remove for N item, rewrite state handling
+        this.setState({isPanelOpen: true, isPanelCloseLocked: true})
+        for (const item of items) {
+            const operationsCopy = [...this.state.operations];
+            let operation: Operation = {
+                operationType: `Remove ${this.props.report.displayName}`,
+                itemName: item.name,
+                state: "Running",
+                result: MessageBarType.info
+            }
+            this.setState({operations: [operation, ...this.state.operations]})
+            await this.deleteResource(item, operation)
+            this.setState({operations: [operation, ...operationsCopy]})
+        }
+        this.setState({isPanelCloseLocked: false})
+        this.loadTableData()
+        return;
     }
 
     render() {
@@ -82,10 +120,14 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
                            }, {
                                buttonName: "Details",
                                action: () => {
+                                   alert("TODO. Modal window with resource properties (tags, mb owner from activity log)")
                                }
                            }
                        ]}
                 />
+                <OperationProgressPanel isOpen={this.state.isPanelOpen} isCloseLocked={this.state.isPanelCloseLocked}
+                                        closePanel={() => this.setState({isPanelOpen: false})}
+                                        operations={this.state.operations}/>
             </div>
         )
     }
