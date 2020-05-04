@@ -5,7 +5,14 @@ import {Report} from "../Reports";
 import {Text} from 'office-ui-fabric-react/lib/Text';
 import {IAzResource} from "../../../AzureService/Compute/AzResource/AzResource";
 import {HttpOperationResponse} from "@azure/ms-rest-js";
+import {Operation, OperationProgressPanel} from "../../Components/OperationProgressPanel";
+import {MessageBarType} from "office-ui-fabric-react";
 
+interface TableItem {
+    id: string;
+    name: string;
+    resourceGroup: string;
+}
 
 interface Props {
     graphClient?: ResourceGraph;
@@ -16,19 +23,20 @@ interface Props {
 interface State {
     columns?: any;
     items?: any;
-}
-
-interface TableItem {
-    id: string;
-    name: string;
-    resourceGroup: string;
+    isPanelOpen: boolean;
+    isPanelCloseLocked: boolean
+    operations: Operation[]
 }
 
 
 export default class AzCommonAboundedResource extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {}
+        this.state = {
+            isPanelOpen: false,
+            isPanelCloseLocked: false,
+            operations: []
+        }
     }
 
     componentDidMount(): void {
@@ -56,22 +64,37 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
         this.setState({columns: data.columns, items: items})
     }
 
-    private deleteAction = async (items: TableItem[]) => {
-        //todo
-        if (items.length === 1) {
-            const item = items[0];
-            console.log(`Deleting item: ${item.resourceGroup} ${item.name}`)
-            const response: HttpOperationResponse = await this.props.resourceClient.delete(item.resourceGroup, item.name)
-            console.log(`Response code: ${response.status}`)
-            if (response.status !== 202) {
-                alert(`Failure during delete : ${response.bodyAsText}`)
-                return;
-            }
-            this.loadTableData()
-            return;
+    private deleteResource = async (item: TableItem, operation: Operation) => {
+        console.log(`Deleting item: ${item.resourceGroup} ${item.name}`)
+        const response: HttpOperationResponse = await this.props.resourceClient.delete(item.resourceGroup, item.name)
+        console.log(`Response code: ${response.status}`)
+        if (response.status !== 204) {
+            operation.result = MessageBarType.error
+            operation.state = `Error: ${response.bodyAsText}`
+            return ;
         }
-        alert(`Are you sure want to delete all ${items.length} items?`)
-        alert(`Ok, but currently this feature is unavailable`)
+        operation.state = "Successfully Finished"
+        operation.result = MessageBarType.success
+    }
+
+    private deleteAction = async (items: TableItem[]) => {
+        //todo: switch to bulk async remove for N item, rewrite state handling
+        this.setState({isPanelOpen: true, isPanelCloseLocked: true})
+        for (const item of items) {
+            const operationsCopy = [...this.state.operations];
+            let operation: Operation = {
+                operationType: `Remove ${this.props.report.displayName}`,
+                itemName: item.name,
+                state: "Running",
+                result: MessageBarType.info
+            }
+            this.setState({operations: [operation, ...this.state.operations]})
+            await this.deleteResource(item, operation)
+            this.setState({operations: [operation, ...operationsCopy]})
+        }
+        this.setState({isPanelCloseLocked: false})
+        this.loadTableData()
+        return;
     }
 
     render() {
@@ -94,10 +117,14 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
                            }, {
                                buttonName: "Details",
                                action: () => {
+                                   alert("TODO. Modal window with resource properties (tags, mb owner from activity log)")
                                }
                            }
                        ]}
                 />
+                <OperationProgressPanel isOpen={this.state.isPanelOpen} isCloseLocked={this.state.isPanelCloseLocked}
+                                        closePanel={() => this.setState({isPanelOpen: false})}
+                                        operations={this.state.operations}/>
             </div>
         )
     }
