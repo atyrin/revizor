@@ -66,15 +66,18 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
 
     private deleteResource = async (item: TableItem, operation: Operation) => {
         console.log(`Deleting item: ${item.resourceGroup} ${item.name}`)
-        const response: HttpOperationResponse = await this.props.resourceClient.delete(item.resourceGroup, item.name)
-        console.log(`Response code: ${response.status}`)
-        if (response.status !== 204) {
-            operation.result = MessageBarType.error
-            operation.state = `Error: ${response.bodyAsText}`
-            return ;
+        try {
+            const response: HttpOperationResponse = await this.props.resourceClient.delete(item.resourceGroup, item.name)
+            console.log(`Response code: ${response.status}`)
+            operation.state = "Successfully Finished"
+            operation.result = MessageBarType.success
         }
-        operation.state = "Successfully Finished"
-        operation.result = MessageBarType.success
+        catch (e) {
+            const error = e as Error
+            operation.result = MessageBarType.error
+            operation.state = `Error: ${error.message}`
+            console.log(e)
+        }
     }
 
     private deleteAction = async (items: TableItem[]) => {
