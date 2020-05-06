@@ -5,7 +5,7 @@ import {Subscription} from "@azure/arm-subscriptions/esm/models";
 import {IStackTokens, Stack} from "office-ui-fabric-react";
 import ResourceGraph from "../../../AzureService/ResourceGraph/ResourceGraph";
 import {REPORTS} from "../Reports";
-import {DashboardCard} from "../../Components/DashboardCard";
+import {DashboardCard} from "./DashboardCard";
 
 interface Props {
     credentials: ServiceClientCredentials
