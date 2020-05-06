@@ -2,7 +2,7 @@ import * as React from "react";
 import {Card, ICardSectionStyles, ICardSectionTokens, ICardTokens} from "@uifabric/react-cards";
 import {IconButton} from "@fluentui/react/lib/Button";
 import {Text} from "office-ui-fabric-react";
-import {Report} from "../Workspace/Reports";
+import {Report} from "../Reports";
 import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
 
 interface Props {

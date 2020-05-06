@@ -45,7 +45,6 @@ export const LoginModal: React.FunctionComponent<Props> = (props: Props) => {
                         Log in
                     </PrimaryButton>
                 </div>
-
             </div>
         </Modal>
     );

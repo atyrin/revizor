@@ -68,10 +68,7 @@ export default class Login extends React.Component<Props, State> {
         this.storage.setTenantId(id);
     }
 
-
     render() {
-        console.log(`Render Account: ${this.props.currentAccount}`)
-
         const isUserAuthenticated: boolean = Boolean(this.props.currentAccount);
 
         return (
