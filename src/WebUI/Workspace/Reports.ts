@@ -43,7 +43,7 @@ export const REPORTS: Array<Report> = [
         displayName: "Managed Disks not connected to VM",
         query: "where type =~ 'microsoft.compute/disks' and isempty(managedBy) | project id, name, resourceGroup | sort by resourceGroup asc",
         type: AzResourceTypes.ManagedDisk
-    },
+    }/*,
     {
         key: "AboundedAvailabilitySet",
         displayName: "Abounded Availability Set"
@@ -59,5 +59,5 @@ export const REPORTS: Array<Report> = [
     {
         key: "ExpiredAdApplications",
         displayName: "Expired Active Directory Applications"
-    }
+    }*/
 ]
