@@ -7,15 +7,15 @@ import {Panel} from 'office-ui-fabric-react/lib/Panel';
 export interface Operation {
     operationType: string;
     itemName: string;
-    state: string
-    result: MessageBarType
+    state: string;
+    result: MessageBarType;
 }
 
 interface Props {
     isOpen: boolean;
     isCloseLocked: boolean;
     closePanel: () => void;
-    operations: Operation[]
+    operations: Operation[];
 }
 
 export const OperationProgressPanel: React.FunctionComponent<Props> = (props: Props) => {

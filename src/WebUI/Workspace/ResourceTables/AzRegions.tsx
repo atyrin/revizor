@@ -9,8 +9,8 @@ import {AzSubscriptions} from "../../../AzureService/Account/Subscriptions";
 
 
 interface Props {
-    credentials: ServiceClientCredentials
-    currentSubscription: Subscription
+    credentials: ServiceClientCredentials;
+    currentSubscription: Subscription;
 }
 
 interface State {

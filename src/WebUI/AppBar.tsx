@@ -3,20 +3,9 @@ import {CommandBar, ICommandBarItemProps} from 'office-ui-fabric-react/lib/Comma
 import {AzureUser} from "./AzureUser";
 
 interface Props {
-    currentAccount?: AzureUser
+    currentAccount?: AzureUser;
     logout: () => void;
 }
-
-export const AppBar: React.FunctionComponent<Props> = (props: Props) => {
-    return (
-        <div>
-            <CommandBar
-                items={_items}
-                farItems={_farItems(props)}
-            />
-        </div>
-    );
-};
 
 const _items: ICommandBarItemProps[] = [
 
@@ -36,15 +25,11 @@ const _farItems = (props: Props): ICommandBarItemProps[] => {
             {
                 key: 'username',
                 text: props.currentAccount.username,
-                // This needs an ariaLabel since it's icon-only
-                ariaLabel: 'Grid view',
                 iconOnly: false
             },
             {
                 key: 'logout',
                 text: 'Logout',
-                // This needs an ariaLabel since it's icon-only
-                ariaLabel: 'Info',
                 iconOnly: false,
                 iconProps: {iconName: 'Info'},
                 onClick: () => props.logout(),
@@ -52,3 +37,14 @@ const _farItems = (props: Props): ICommandBarItemProps[] => {
         ]
     )
 }
+
+export const AppBar: React.FunctionComponent<Props> = (props: Props) => {
+    return (
+        <div>
+            <CommandBar
+                items={_items}
+                farItems={_farItems(props)}
+            />
+        </div>
+    );
+};

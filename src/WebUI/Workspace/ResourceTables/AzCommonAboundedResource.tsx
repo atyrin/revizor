@@ -17,15 +17,15 @@ interface TableItem {
 interface Props {
     graphClient?: ResourceGraph;
     report: Report;
-    resourceClient: IAzResource
+    resourceClient: IAzResource;
 }
 
 interface State {
     columns?: any;
     items?: any;
     isPanelOpen: boolean;
-    isPanelCloseLocked: boolean
-    operations: Operation[]
+    isPanelCloseLocked: boolean;
+    operations: Operation[];
 }
 
 
@@ -71,8 +71,7 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
             console.log(`Response code: ${response.status}`)
             operation.state = "Successfully Finished"
             operation.result = MessageBarType.success
-        }
-        catch (e) {
+        } catch (e) {
             const error = e as Error
             operation.result = MessageBarType.error
             operation.state = `Error: ${error.message}`
@@ -100,6 +99,25 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
         return;
     }
 
+    private getContextActions = () => {
+        return (
+            [
+                {
+                    buttonName: "Delete",
+                    action: (selection: TableItem[]) => {
+                        this.deleteAction(selection)
+                    }
+                },
+                {
+                    buttonName: "Details",
+                    action: () => {
+                        alert("TODO. Modal window with resource properties (tags, mb owner from activity log)")
+                    }
+                }
+            ]
+        )
+    }
+
     render() {
         if (!this.state.columns) {
             return (
@@ -111,19 +129,7 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
                 <Text>Showing report: {this.props.report.displayName}</Text>
                 <Table columns={this.state.columns}
                        items={this.state.items}
-                       contextActions={[
-                           {
-                               buttonName: "Delete",
-                               action: (selection: TableItem[]) => {
-                                   this.deleteAction(selection)
-                               }
-                           }, {
-                               buttonName: "Details",
-                               action: () => {
-                                   alert("TODO. Modal window with resource properties (tags, mb owner from activity log)")
-                               }
-                           }
-                       ]}
+                       contextActions={this.getContextActions()}
                 />
                 <OperationProgressPanel isOpen={this.state.isPanelOpen} isCloseLocked={this.state.isPanelCloseLocked}
                                         closePanel={() => this.setState({isPanelOpen: false})}

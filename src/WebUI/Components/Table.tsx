@@ -56,7 +56,7 @@ const controlStyles = {
     },
 };
 
-export interface IDetailsListDocumentsExampleState {
+export interface DetailsListDocumentsExampleState {
     columns: IColumn[];
     items: any[];
     selectionDetails: string;
@@ -71,16 +71,16 @@ interface TableColumn {
 
 interface Props {
     columns: Array<TableColumn>;
-    items: Array<any>
-    contextActions?: Array<ContextAction>
+    items: any[];
+    contextActions?: Array<ContextAction>;
 }
 
 interface ContextAction {
-    buttonName: string
+    buttonName: string;
     action: (selections: any[]) => void;
 }
 
-export class Table extends React.Component<Props, IDetailsListDocumentsExampleState> {
+export class Table extends React.Component<Props, DetailsListDocumentsExampleState> {
     private _selection: Selection;
     private _allItems: any;
 
@@ -121,13 +121,13 @@ export class Table extends React.Component<Props, IDetailsListDocumentsExampleSt
             },
         });
 
-        this.state = {
+        this.setState({
             items: this._allItems,
             columns: columns,
             selectionDetails: this._getSelectionDetails(),
             isModalSelection: true,
             isCompactMode: false
-        };
+        });
     }
 
     renderContextActions() {
@@ -208,7 +208,7 @@ export class Table extends React.Component<Props, IDetailsListDocumentsExampleSt
         );
     }
 
-    public componentDidUpdate(previousProps: Props, previousState: IDetailsListDocumentsExampleState) {
+    public componentDidUpdate(previousProps: Props, previousState: DetailsListDocumentsExampleState) {
         if (previousProps.items !== this.props.items) {
             this.setState({items: this.props.items})
             this._allItems = this.props.items

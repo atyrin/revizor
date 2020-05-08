@@ -8,13 +8,13 @@ import {REPORTS} from "../Reports";
 import {DashboardCard} from "./DashboardCard";
 
 interface Props {
-    credentials: ServiceClientCredentials
-    currentSubscription: Subscription
+    credentials: ServiceClientCredentials;
+    currentSubscription: Subscription;
 }
 
 interface State {
-    resourceGraphClient?: ResourceGraph
-    counters: any
+    resourceGraphClient?: ResourceGraph;
+    counters: any;
 }
 
 

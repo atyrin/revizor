@@ -4,14 +4,14 @@ import {TextField} from "office-ui-fabric-react/lib/TextField";
 import {Text} from 'office-ui-fabric-react/lib/Text';
 
 interface Props {
-    isModalOpen: boolean
-    closeModal: () => void
+    isModalOpen: boolean;
+    closeModal: () => void;
 
     tenantId: string;
     clientId: string;
     updateTenantId: (id: string) => void;
     updateClientId: (id: string) => void;
-    triggerAuth: () => void
+    triggerAuth: () => void;
 }
 
 export const LoginModal: React.FunctionComponent<Props> = (props: Props) => {

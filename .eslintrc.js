@@ -21,6 +21,8 @@ module.exports = {
         "plugin:react-hooks/recommended"
     ],
     rules: {
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/explicit-function-return-type": "off"
         // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
         // e.g. "@typescript-eslint/explicit-function-return-type": "off",
     },

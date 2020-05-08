@@ -10,7 +10,7 @@ import {TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
 import {Spinner} from 'office-ui-fabric-react/lib/Spinner';
 
 interface Props {
-    azureClient: ServiceClientCredentials
+    azureClient: ServiceClientCredentials;
     currentDirectory: TenantIdDescription;
     setDirectory: (directory: TenantIdDescription) => void;
 }
