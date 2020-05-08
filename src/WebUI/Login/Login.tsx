@@ -14,9 +14,9 @@ interface Props {
 }
 
 interface State {
-    clientId?: string
-    tenantId?: string
-    isInitiateDone: boolean
+    clientId?: string;
+    tenantId?: string;
+    isInitiateDone: boolean;
 }
 
 
@@ -69,7 +69,7 @@ export default class Login extends React.Component<Props, State> {
     }
 
     render() {
-        const isUserAuthenticated: boolean = Boolean(this.props.currentAccount);
+        const isUserAuthenticated = Boolean(this.props.currentAccount);
 
         return (
             <LoginModal isModalOpen={!isUserAuthenticated && this.state.isInitiateDone}

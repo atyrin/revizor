@@ -12,6 +12,7 @@ import {
 } from 'office-ui-fabric-react/lib/DetailsList';
 import {MarqueeSelection} from 'office-ui-fabric-react/lib/MarqueeSelection';
 import {mergeStyleSets} from 'office-ui-fabric-react/lib/Styling';
+import {TableColumn, TableItem} from "../Model/TableItem";
 
 const classNames = mergeStyleSets({
     fileIconHeaderIcon: {
@@ -56,40 +57,32 @@ const controlStyles = {
     },
 };
 
-export interface IDetailsListDocumentsExampleState {
+export interface DetailsListDocumentsExampleState {
     columns: IColumn[];
-    items: any[];
+    items: TableItem[];
     selectionDetails: string;
     isModalSelection: boolean;
     isCompactMode: boolean;
 }
 
-interface TableColumn {
-    name: string;
-    type: string;
-}
-
 interface Props {
-    columns: Array<TableColumn>;
-    items: Array<any>
-    contextActions?: Array<ContextAction>
+    columns: TableColumn[];
+    items: TableItem[];
+    contextActions?: Array<ContextAction>;
 }
 
 interface ContextAction {
-    buttonName: string
-    action: (selections: any[]) => void;
+    buttonName: string;
+    action: (selections: TableItem[]) => void;
 }
 
-export class Table extends React.Component<Props, IDetailsListDocumentsExampleState> {
+export class Table extends React.Component<Props, DetailsListDocumentsExampleState> {
     private _selection: Selection;
-    private _allItems: any;
+    private _allItems: TableItem[];
 
     constructor(props: Props) {
         super(props);
-        this.initTable(props)
-    }
 
-    private initTable = (props: Props) => {
         this._allItems = props.items;
 
         const columns: IColumn[] = props.columns.map(
@@ -135,7 +128,7 @@ export class Table extends React.Component<Props, IDetailsListDocumentsExampleSt
         const isDisabled = this._selection.getSelectedCount() === 0;
         return this.props.contextActions.map((contextAction: ContextAction) => {
             return (<PrimaryButton key={contextAction.buttonName} text={contextAction.buttonName}
-                                   onClick={() => contextAction.action(this._selection.getSelection())}
+                                   onClick={() => contextAction.action(this._selection.getSelection() as TableItem[])}
                                    disabled={isDisabled} style={{marginRight: 5}}/>)
         })
     }
@@ -208,7 +201,7 @@ export class Table extends React.Component<Props, IDetailsListDocumentsExampleSt
         );
     }
 
-    public componentDidUpdate(previousProps: Props, previousState: IDetailsListDocumentsExampleState) {
+    public componentDidUpdate(previousProps: Props, previousState: DetailsListDocumentsExampleState) {
         if (previousProps.items !== this.props.items) {
             this.setState({items: this.props.items})
             this._allItems = this.props.items
@@ -237,7 +230,7 @@ export class Table extends React.Component<Props, IDetailsListDocumentsExampleSt
         });
     };
 
-    private _onItemInvoked(item: any): void {
+    private _onItemInvoked(item: TableItem): void {
         alert(`Item invoked: ${item.name}`);
     }
 
@@ -248,7 +241,7 @@ export class Table extends React.Component<Props, IDetailsListDocumentsExampleSt
             case 0:
                 return 'No items selected';
             case 1:
-                return '1 item selected: ' + (this._selection.getSelection()[0] as any).name;
+                return '1 item selected: ' + (this._selection.getSelection()[0] as TableItem).name;
             default:
                 return `${selectionCount} items selected`;
         }

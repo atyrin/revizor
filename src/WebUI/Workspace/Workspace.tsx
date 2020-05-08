@@ -14,7 +14,7 @@ import {Subscription} from "@azure/arm-subscriptions/esm/models";
 
 interface Props {
     currentAccount?: AzureUser;
-    azureClient?: ServiceClientCredentials
+    azureClient?: ServiceClientCredentials;
     setAzureClient: (client: ServiceClientCredentials) => void;
 }
 
@@ -39,7 +39,6 @@ export const Workspace: React.FunctionComponent<Props> = (props: Props) => {
         </div>
     )
 };
-
 
 const textStyle = {
     fontFamily: 'Monaco, Menlo, Consolas',

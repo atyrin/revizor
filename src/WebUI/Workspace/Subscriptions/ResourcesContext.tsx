@@ -78,7 +78,7 @@ export const ResourcesContext2: React.FunctionComponent<Props> = (props: Props) 
     )
 };*/
 
-const recreateAzureClient = async (directoryId: TenantIdDescription, setLocalAzureClient) => {
+const recreateAzureClient = async (directoryId: TenantIdDescription, setLocalAzureClient): Promise<void> => {
     const storage = new ItemsStorage();
     const clientId = storage.getClientId();
     console.log(`[ResourcesContext] call get service client`)

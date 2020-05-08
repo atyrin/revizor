@@ -19,7 +19,7 @@ export interface IAzResource {
 }
 
 export interface IAzEntityResource extends IAzResource {
-    listByResourceGroup(resourceGroupName: string)
+    listByResourceGroup(resourceGroupName: string);
 }
 
 export class AzureResourceFactory {

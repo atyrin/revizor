@@ -1,11 +1,12 @@
 import {SubscriptionClient} from "@azure/arm-subscriptions";
 import {Location, Subscription, TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
+import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
 
 export class AzSubscriptions {
     private readonly client: SubscriptionClient;
 
-    constructor(credentials: any) {
+    constructor(credentials: ServiceClientCredentials) {
         this.client = new SubscriptionClient(credentials);
     }
 

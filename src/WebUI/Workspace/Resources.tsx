@@ -10,8 +10,8 @@ import {AzureResourceFactory, IAzResource} from "../../AzureService/Compute/AzRe
 
 
 interface Props {
-    azureClient: ServiceClientCredentials
-    currentSubscription: Subscription
+    azureClient: ServiceClientCredentials;
+    currentSubscription: Subscription;
 }
 
 

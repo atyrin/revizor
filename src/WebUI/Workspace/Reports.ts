@@ -4,7 +4,7 @@ export interface Report {
     key: string;
     displayName: string;
     query?: string;
-    type?: AzResourceTypes
+    type?: AzResourceTypes;
 }
 
 export const REPORTS: Array<Report> = [

@@ -9,7 +9,7 @@ import {ComboBox, DefaultButton, Stack} from 'office-ui-fabric-react';
 import {Subscription, TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
 
 interface Props {
-    azureClient: ServiceClientCredentials
+    azureClient: ServiceClientCredentials;
     currentSubscription: Subscription;
     setSubscription: (sub: Subscription) => void;
     directory: TenantIdDescription;
