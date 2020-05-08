@@ -4,15 +4,11 @@ import {Table} from "../../Components/Table";
 import {Report} from "../Reports";
 import {Text} from 'office-ui-fabric-react/lib/Text';
 import {IAzResource} from "../../../AzureService/Compute/AzResource/AzResource";
-import {HttpOperationResponse} from "@azure/ms-rest-js";
-import {Operation, OperationProgressPanel} from "../../Components/OperationProgressPanel";
-import {MessageBarType} from "office-ui-fabric-react";
+import {OperationProgressPanel} from "../../Components/OperationProgressPanel";
+import {Operation} from "../../Model/Operation";
+import {TableColumn, TableItem} from "../../Model/TableItem";
+import {sleep} from "../../Utils/Sleep";
 
-interface TableItem {
-    id: string;
-    name: string;
-    resourceGroup: string;
-}
 
 interface Props {
     graphClient?: ResourceGraph;
@@ -21,12 +17,15 @@ interface Props {
 }
 
 interface State {
-    columns?: any;
-    items?: any;
+    columns?: TableColumn[];
+    items?: TableItem[];
     isPanelOpen: boolean;
     isPanelCloseLocked: boolean;
     operations: Operation[];
+    triggerRerender: boolean;
 }
+
+const MAX_PARALLEL_DELETE_TASKS = 5
 
 
 export default class AzCommonAboundedResource extends React.Component<Props, State> {
@@ -35,7 +34,8 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
         this.state = {
             isPanelOpen: false,
             isPanelCloseLocked: false,
-            operations: []
+            operations: [],
+            triggerRerender: false
         }
     }
 
@@ -55,49 +55,67 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
         const graphOutput = await this.props.graphClient.query(this.props.report.query);
         const data: ResourceGraphData = graphOutput.data;
         const items = data.rows.map(
-            item => ({
+            item => (new TableItem(this.props.resourceClient, {
                 id: item[0],
                 name: item[1],
                 resourceGroup: item[2]
-            })
+            }))
         )
-        this.setState({columns: data.columns, items: items})
+        this.setState({columns: data.columns as TableColumn[], items: items})
     }
 
-    private deleteResource = async (item: TableItem, operation: Operation) => {
-        console.log(`Deleting item: ${item.resourceGroup} ${item.name}`)
-        try {
-            const response: HttpOperationResponse = await this.props.resourceClient.delete(item.resourceGroup, item.name)
-            console.log(`Response code: ${response.status}`)
-            operation.state = "Successfully Finished"
-            operation.result = MessageBarType.success
-        } catch (e) {
-            const error = e as Error
-            operation.result = MessageBarType.error
-            operation.state = `Error: ${error.message}`
-            console.log(e)
-        }
+    private createRemoveOperation = (item: TableItem): Operation => {
+        const operation: Operation = new Operation({
+            operationType: `Remove ${this.props.report.displayName}`,
+            itemName: item.name
+        });
+        operation.start();
+        return operation;
     }
 
-    private deleteAction = async (items: TableItem[]) => {
-        //todo: switch to bulk async remove for N item, rewrite state handling
+    private bulkItemsDeleteAction = async (items: TableItem[]) => {
         this.setState({isPanelOpen: true, isPanelCloseLocked: true})
-        for (const item of items) {
-            const operationsCopy = [...this.state.operations];
-            let operation: Operation = {
-                operationType: `Remove ${this.props.report.displayName}`,
-                itemName: item.name,
-                state: "Running",
-                result: MessageBarType.info
+        let activeTasksCount = 0;
+        const tasksList = []
+        const localItemsCopy = [...items]
+        let processingItem = localItemsCopy.pop()
+
+        while (true) {
+            const localOperations = [] //group operation for correct render in case of fast state update with spread of current operations
+
+            while (activeTasksCount < MAX_PARALLEL_DELETE_TASKS) {
+                if (!processingItem) break;
+
+                const operation: Operation = this.createRemoveOperation(processingItem);
+                localOperations.push(operation)
+
+                const deletePromise = processingItem.delete()
+                    .then(() => {
+                        operation.finishSuccess("Successfully Finished")
+                        activeTasksCount--
+                        this.setState({triggerRerender: !this.state.triggerRerender})
+                    })
+                    .catch((err) => {
+                        operation.finishError(err)
+                        activeTasksCount--
+                        this.setState({triggerRerender: !this.state.triggerRerender})
+                    })
+
+                tasksList.push(deletePromise)
+                activeTasksCount++
+                processingItem = localItemsCopy.pop();
             }
-            this.setState({operations: [operation, ...this.state.operations]})
-            await this.deleteResource(item, operation)
-            this.setState({operations: [operation, ...operationsCopy]})
+
+            this.setState({operations: [...localOperations, ...this.state.operations]})
+            if (!processingItem) break;
+            await sleep(1000)
         }
+
+        await Promise.all(tasksList)
         this.setState({isPanelCloseLocked: false})
         this.loadTableData()
-        return;
     }
+
 
     private getContextActions = () => {
         return (
@@ -105,7 +123,7 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
                 {
                     buttonName: "Delete",
                     action: (selection: TableItem[]) => {
-                        this.deleteAction(selection)
+                        this.bulkItemsDeleteAction(selection)
                     }
                 },
                 {

@@ -1,15 +1,9 @@
 import * as React from "react";
-import {MessageBar, MessageBarType, Stack} from "office-ui-fabric-react";
+import {MessageBar, Stack} from "office-ui-fabric-react";
 import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
 import {Panel} from 'office-ui-fabric-react/lib/Panel';
+import {Operation} from "../Model/Operation";
 
-
-export interface Operation {
-    operationType: string;
-    itemName: string;
-    state: string;
-    result: MessageBarType;
-}
 
 interface Props {
     isOpen: boolean;
