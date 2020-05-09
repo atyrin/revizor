@@ -144,7 +144,6 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
         }
         return (
             <div style={{padding: 10}}>
-                <Text>Showing report: {this.props.report.displayName}</Text>
                 <Table columns={this.state.columns}
                        items={this.state.items}
                        contextActions={this.getContextActions()}

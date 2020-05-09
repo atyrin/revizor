@@ -8,7 +8,7 @@ import ItemsStorage from "../../Utils/Storage";
 import {getServiceClient} from "../../../AzureService/Account/Login";
 
 interface Props {
-    azureClient: ServiceClientCredentials
+    azureClient: ServiceClientCredentials;
     setAzureClient: (cred: ServiceClientCredentials) => void;
     currentSubscription: Subscription;
     setSubscription: (sub: Subscription) => void;
@@ -17,6 +17,13 @@ interface Props {
 interface State {
     directory?: TenantIdDescription;
     localAzureClient?: ServiceClientCredentials;
+}
+
+const recreateAzureClient = async (directoryId: TenantIdDescription): Promise<ServiceClientCredentials> => {
+    const storage = new ItemsStorage();
+    const clientId = storage.getClientId();
+    console.log(`[ResourcesContext] call get service client for ${directoryId.tenantId}`)
+    return await getServiceClient(clientId, directoryId.tenantId)
 }
 
 export class ResourcesContext extends React.Component<Props, State> {
@@ -33,7 +40,7 @@ export class ResourcesContext extends React.Component<Props, State> {
             console.log(`[ResourcesContext] Directory was changed`)
             console.log(`[ResourcesContext] prev tenant id ${prevState.directory ? prevState.directory.tenantId : "was null"}`)
             console.log(`[ResourcesContext] current tenant id ${this.state.directory.tenantId}`)
-            recreateAzureClient(this.state.directory, (c) => this.props.setAzureClient(c))
+            recreateAzureClient(this.state.directory).then(client => this.props.setAzureClient(client))
         }
     }
 
@@ -43,7 +50,7 @@ export class ResourcesContext extends React.Component<Props, State> {
 
     render() {
         return (
-            <div>
+            <div style={{backgroundColor: "#f5f5f5", margin: 20, padding: 10, boxShadow: "5px 5px 5px 0px rgba(232,229,232,1)"}}>
                 <DirectorySelect azureClient={this.props.azureClient} currentDirectory={this.state.directory}
                                  setDirectory={d => this.setDirectory(d)}/>
                 <SubscriptionSelect azureClient={this.props.azureClient}
@@ -78,10 +85,4 @@ export const ResourcesContext2: React.FunctionComponent<Props> = (props: Props) 
     )
 };*/
 
-const recreateAzureClient = async (directoryId: TenantIdDescription, setLocalAzureClient): Promise<void> => {
-    const storage = new ItemsStorage();
-    const clientId = storage.getClientId();
-    console.log(`[ResourcesContext] call get service client`)
-    const credentials: ServiceClientCredentials = await getServiceClient(clientId, directoryId.tenantId)
-    setLocalAzureClient(credentials)
-}
+

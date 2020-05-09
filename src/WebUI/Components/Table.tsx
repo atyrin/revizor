@@ -61,7 +61,6 @@ export interface DetailsListDocumentsExampleState {
     columns: IColumn[];
     items: TableItem[];
     selectionDetails: string;
-    isModalSelection: boolean;
     isCompactMode: boolean;
 }
 
@@ -118,7 +117,6 @@ export class Table extends React.Component<Props, DetailsListDocumentsExampleSta
             items: this._allItems,
             columns: columns,
             selectionDetails: this._getSelectionDetails(),
-            isModalSelection: true,
             isCompactMode: false
         };
     }
@@ -135,7 +133,7 @@ export class Table extends React.Component<Props, DetailsListDocumentsExampleSta
 
 
     public render() {
-        const {columns, isCompactMode, items, selectionDetails, isModalSelection} = this.state;
+        const {columns, isCompactMode, items, selectionDetails} = this.state;
 
         return (
             <Fabric>
@@ -148,14 +146,6 @@ export class Table extends React.Component<Props, DetailsListDocumentsExampleSta
                         offText="Normal"
                         styles={controlStyles}
                     />
-                    <Toggle
-                        label="Enable modal selection"
-                        checked={isModalSelection}
-                        onChange={this._onChangeModalSelection}
-                        onText="Modal"
-                        offText="Normal"
-                        styles={controlStyles}
-                    />
                     <TextField label="Filter by name:" onChange={this._onChangeText} styles={controlStyles}/>
                 </div>
                 <Stack horizontal horizontalAlign="space-between">
@@ -164,39 +154,25 @@ export class Table extends React.Component<Props, DetailsListDocumentsExampleSta
                         {this.renderContextActions()}
                     </Stack>
                 </Stack>
-                {isModalSelection ? (
-                    <MarqueeSelection selection={this._selection}>
-                        <DetailsList
-                            items={items}
-                            compact={isCompactMode}
-                            columns={columns}
-                            selectionMode={SelectionMode.multiple}
-                            getKey={this._getKey}
-                            setKey="multiple"
-                            layoutMode={DetailsListLayoutMode.justified}
-                            isHeaderVisible={true}
-                            selection={this._selection}
-                            selectionPreservedOnEmptyClick={true}
-                            onItemInvoked={this._onItemInvoked}
-                            enterModalSelectionOnTouch={true}
-                            ariaLabelForSelectionColumn="Toggle selection"
-                            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-                            checkButtonAriaLabel="Row checkbox"
-                        />
-                    </MarqueeSelection>
-                ) : (
+                <MarqueeSelection selection={this._selection}>
                     <DetailsList
                         items={items}
                         compact={isCompactMode}
                         columns={columns}
-                        selectionMode={SelectionMode.none}
+                        selectionMode={SelectionMode.multiple}
                         getKey={this._getKey}
-                        setKey="none"
+                        setKey="multiple"
                         layoutMode={DetailsListLayoutMode.justified}
                         isHeaderVisible={true}
+                        selection={this._selection}
+                        selectionPreservedOnEmptyClick={true}
                         onItemInvoked={this._onItemInvoked}
+                        enterModalSelectionOnTouch={true}
+                        ariaLabelForSelectionColumn="Toggle selection"
+                        ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+                        checkButtonAriaLabel="Row checkbox"
                     />
-                )}
+                </MarqueeSelection>
             </Fabric>
         );
     }
@@ -207,9 +183,6 @@ export class Table extends React.Component<Props, DetailsListDocumentsExampleSta
             this._allItems = this.props.items
             this._selection.setAllSelected(false);
         }
-        if (previousState.isModalSelection !== this.state.isModalSelection && !this.state.isModalSelection) {
-            this._selection.setAllSelected(false);
-        }
     }
 
     private _getKey(item: any, index?: number): string {
@@ -218,10 +191,6 @@ export class Table extends React.Component<Props, DetailsListDocumentsExampleSta
 
     private _onChangeCompactMode = (ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
         this.setState({isCompactMode: checked});
-    };
-
-    private _onChangeModalSelection = (ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
-        this.setState({isModalSelection: checked});
     };
 
     private _onChangeText = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {

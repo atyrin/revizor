@@ -9,8 +9,11 @@ import {AzureUser} from "../AzureUser";
 import Dashboard from "./Dashboard/Dashboard";
 import {Separator} from 'office-ui-fabric-react/lib/Separator';
 import {Text} from 'office-ui-fabric-react/lib/Text';
+
 import {ResourcesContext} from "./Subscriptions/ResourcesContext";
 import {Subscription} from "@azure/arm-subscriptions/esm/models";
+
+import {Route, Switch} from "react-router-dom";
 
 interface Props {
     currentAccount?: AzureUser;
@@ -31,11 +34,32 @@ export const Workspace: React.FunctionComponent<Props> = (props: Props) => {
         <div>
             <ResourcesContext azureClient={props.azureClient} setAzureClient={client => props.setAzureClient(client)}
                               currentSubscription={subscription} setSubscription={s => setSubscription(s)}/>
-            <Separator><Text style={textStyle}>Dashboard</Text></Separator>
-            <Dashboard credentials={props.azureClient} currentSubscription={subscription}/>
+            {
+                subscription ?
+                    (
+                        <div style={{margin: 20}}>
+                            <Separator><Text style={textStyle}>Dashboard</Text></Separator>
+                            <Dashboard credentials={props.azureClient} currentSubscription={subscription}/>
 
-            <Separator><Text style={textStyle}>Reports</Text></Separator>
-            <Resources azureClient={props.azureClient} currentSubscription={subscription}/>
+                            <Separator><Text style={textStyle}>Reports</Text></Separator>
+                            <Switch>
+                                <Route path={["/report/:reportkey", "/"]}>
+                                    <Resources azureClient={props.azureClient} currentSubscription={subscription}/>
+                                </Route>
+                            </Switch>
+                        </div>
+                    )
+                    :
+                    (
+                        <div style={{justifyContent: "center", display: "flex"}}>
+                            <Text style={{paddingTop: 100}} variant={"large"}>
+                                Please, select a subscription
+                            </Text>
+                        </div>
+
+                    )
+            }
+
         </div>
     )
 };

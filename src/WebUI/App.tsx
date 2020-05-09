@@ -4,7 +4,7 @@ import {useState} from "react";
 import {AppBar} from "./AppBar";
 
 import {Workspace} from "./Workspace/Workspace";
-import Login from "./Login/Login";
+import {Login} from "./Login/Login";
 import {AzureUser} from "./AzureUser";
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 

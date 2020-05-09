@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useEffect, useState} from "react";
 
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
@@ -6,6 +7,10 @@ import {getCurrentAccount, getServiceClient} from "../../AzureService/Account/Lo
 import {AzureUser} from "../AzureUser";
 import {LoginModal} from "./LoginModal";
 import ItemsStorage from "../Utils/Storage";
+import {useQuery} from "../Utils/UrlQueryHook";
+import {APPLICATION_ID_QUERY_PARAM} from "../Model/QueryParameters";
+import {isValidGuid} from "../Utils/Validators";
+
 
 interface Props {
     currentAccount?: AzureUser;
@@ -13,71 +18,69 @@ interface Props {
     setAzureClient: (client: ServiceClientCredentials) => void;
 }
 
-interface State {
-    clientId?: string;
-    tenantId?: string;
-    isInitiateDone: boolean;
+const loadLoginParameters = (storage: ItemsStorage): [string, string] => {
+    const clientId = storage.getClientId();
+    const tenantId = storage.getTenantId();
+    return [clientId, tenantId]
 }
 
 
-export default class Login extends React.Component<Props, State> {
-    storage: ItemsStorage;
+export const Login: React.FunctionComponent<Props> = (props: Props) => {
+    const storage = new ItemsStorage();
+    const [storedClientId, storedTenantId] = loadLoginParameters(storage);
+    const [tenantId, setTenantId] = useState<string>(storedTenantId);
+    const [clientId, setClientId] = useState<string>(storedClientId);
 
-    constructor(props: Props) {
-        super(props);
-        this.storage = new ItemsStorage();
-        this.state = {
-            clientId: this.storage.getClientId(),
-            tenantId: this.storage.getTenantId(),
-            isInitiateDone: false
+   const urlClientId = useQuery().get(APPLICATION_ID_QUERY_PARAM);
+   console.log(`[Login] URL query client id: ${urlClientId}`)
+
+    useEffect(() => {
+        console.log(`[Login] URL param ClientId was changed. Prev: ${clientId}, new: ${urlClientId}`)
+        if (isValidGuid(urlClientId)) {
+            storage.setClientId(urlClientId)
+            setClientId(urlClientId)
         }
-    }
+    }, [urlClientId])
 
-    componentDidMount() {
-        this.initiateClient();
-    }
-
-    private initiateClient = async () => {
-        const account = getCurrentAccount(this.state.clientId, this.state.tenantId)
+    useEffect(() => {
+        console.log(`[Login] ClientId state was changed. Recreate client`)
+        const account = getCurrentAccount(clientId, tenantId)
         if (account) {
-            this.props.setAccount({username: account.name, email: account.userName})
+            props.setAccount({username: account.name, email: account.userName})
 
-            console.log(`User ${account.userName} already logged in. Create azure client`)
-            const credentials: ServiceClientCredentials = await getServiceClient(this.state.clientId, this.state.tenantId)
-            this.props.setAzureClient(credentials)
+            console.log(`[Login] User ${account.userName} already logged in. Create azure client`)
+            getServiceClient(clientId, tenantId).then((client) => props.setAzureClient(client))
         }
-        this.setState({isInitiateDone: true})
+    }, [clientId])
+
+
+    const createAzureClient = async () => {
+        const credentials: ServiceClientCredentials = await getServiceClient(clientId, tenantId)
+        props.setAzureClient(credentials)
+
+        const account = getCurrentAccount(clientId, tenantId)
+        props.setAccount({username: account.name, email: account.userName})
     }
 
-    private createAzureClient = async () => {
-        const credentials: ServiceClientCredentials = await getServiceClient(this.state.clientId, this.state.tenantId)
-        this.props.setAzureClient(credentials)
-
-        const account = getCurrentAccount(this.state.clientId, this.state.tenantId)
-        this.props.setAccount({username: account.name, email: account.userName})
-
+    const updateClientId = (id: string) => {
+        setClientId(id)
+        if (isValidGuid(id)) storage.setClientId(id);
     }
 
-    private updateClientId = (id: string) => {
-        this.setState({clientId: id});
-        this.storage.setClientId(id);
+    const updateTenantId = (id: string) => {
+        setTenantId(id)
+        if (isValidGuid(id)) storage.setTenantId(id);
     }
 
-    private updateTenantId = (id: string) => {
-        this.setState({tenantId: id});
-        this.storage.setTenantId(id);
-    }
 
-    render() {
-        const isUserAuthenticated = Boolean(this.props.currentAccount);
+    const shouldShowAuthParametersForm = !Boolean(props.currentAccount);
 
-        return (
-            <LoginModal isModalOpen={!isUserAuthenticated && this.state.isInitiateDone}
-                        closeModal={() => console.log("Try to close login")}
-                        tenantId={this.state.tenantId} clientId={this.state.clientId}
-                        updateTenantId={(id) => this.updateTenantId(id)}
-                        updateClientId={(id) => this.updateClientId(id)}
-                        triggerAuth={() => this.createAzureClient()}/>
-        )
-    }
+    return (
+        <LoginModal isModalOpen={shouldShowAuthParametersForm}
+                    closeModal={() => console.log("Try to close login")}
+                    tenantId={tenantId} clientId={clientId}
+                    updateTenantId={(id) => updateTenantId(id)}
+                    updateClientId={(id) => updateClientId(id)}
+                    triggerAuth={() => createAzureClient()}/>
+    )
 }
