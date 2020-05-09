@@ -84,7 +84,7 @@ const getAuthorityUrl = (tenantId: string) => {
 }
 
 export const getServiceClient = async (appId: string, tenantId: string): Promise<ServiceClientCredentials> => {
-    console.log(`Create Azure client for tenantId: ${tenantId}`)
+    console.log(`Create Azure client for tenantId: ${tenantId}, appId: ${appId}`)
     const msalInstance: Msal.UserAgentApplication = getMsalInstance(appId, tenantId)
     if (msalInstance.getAccount()) {
         const account = msalInstance.getAccount()
