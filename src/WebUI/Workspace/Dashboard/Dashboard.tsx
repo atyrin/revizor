@@ -64,18 +64,11 @@ export default class Dashboard extends React.Component<Props, State> {
 
 
     render() {
-        if (this.props.currentSubscription) {
-            return (
-                <div style={{margin: '20px'}}>
-                    <Stack wrap tokens={sectionStackTokens} horizontal>
-                        {this.renderCards()}
-                    </Stack>
-                </div>
-            )
-        }
         return (
-            <div style={{padding: 10}}>
-                Please, select a subscription for dashboard view
+            <div>
+                <Stack wrap tokens={sectionStackTokens} horizontal>
+                    {this.renderCards()}
+                </Stack>
             </div>
         )
     }

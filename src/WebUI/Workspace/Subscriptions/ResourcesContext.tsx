@@ -50,7 +50,7 @@ export class ResourcesContext extends React.Component<Props, State> {
 
     render() {
         return (
-            <div>
+            <div style={{backgroundColor: "#f5f5f5", margin: 20, padding: 10, boxShadow: "5px 5px 5px 0px rgba(232,229,232,1)"}}>
                 <DirectorySelect azureClient={this.props.azureClient} currentDirectory={this.state.directory}
                                  setDirectory={d => this.setDirectory(d)}/>
                 <SubscriptionSelect azureClient={this.props.azureClient}

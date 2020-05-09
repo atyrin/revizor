@@ -37,7 +37,7 @@ export const Workspace: React.FunctionComponent<Props> = (props: Props) => {
             {
                 subscription ?
                     (
-                        <div>
+                        <div style={{margin: 20}}>
                             <Separator><Text style={textStyle}>Dashboard</Text></Separator>
                             <Dashboard credentials={props.azureClient} currentSubscription={subscription}/>
 

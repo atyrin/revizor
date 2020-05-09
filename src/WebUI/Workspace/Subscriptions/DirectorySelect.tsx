@@ -29,7 +29,7 @@ export const DirectorySelect: React.FunctionComponent<Props> = (props: Props) =>
 
     return (
         <div>
-            <Stack horizontal={true} tokens={{padding: 10}}>
+            <Stack horizontal tokens={{padding: 10}}>
                 <Stack.Item>
                     <Label style={{width: 180}}>Working directory</Label>
                 </Stack.Item>
