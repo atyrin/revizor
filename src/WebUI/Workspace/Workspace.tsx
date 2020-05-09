@@ -12,6 +12,8 @@ import {Text} from 'office-ui-fabric-react/lib/Text';
 import {ResourcesContext} from "./Subscriptions/ResourcesContext";
 import {Subscription} from "@azure/arm-subscriptions/esm/models";
 
+import {Route, Switch} from "react-router-dom";
+
 interface Props {
     currentAccount?: AzureUser;
     azureClient?: ServiceClientCredentials;
@@ -35,7 +37,11 @@ export const Workspace: React.FunctionComponent<Props> = (props: Props) => {
             <Dashboard credentials={props.azureClient} currentSubscription={subscription}/>
 
             <Separator><Text style={textStyle}>Reports</Text></Separator>
-            <Resources azureClient={props.azureClient} currentSubscription={subscription}/>
+            <Switch>
+                <Route path={["/report/:reportkey", "/"]}>
+                    <Resources azureClient={props.azureClient} currentSubscription={subscription}/>
+                </Route>
+            </Switch>
         </div>
     )
 };

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 import {Subscription} from "@azure/arm-subscriptions/esm/models";
@@ -7,6 +7,8 @@ import {ComboBox} from "office-ui-fabric-react";
 import {Report, REPORTS} from "./Reports";
 import AzCommonAboundedResource from "./ResourceTables/AzCommonAboundedResource";
 import {AzureResourceFactory, IAzResource} from "../../AzureService/Compute/AzResource/AzResource";
+
+import {useParams} from "react-router-dom";
 
 
 interface Props {
@@ -17,6 +19,17 @@ interface Props {
 
 export const Resources: React.FunctionComponent<Props> = (props: Props) => {
     const [currentReport, setCurrentReport] = useState<Report>(REPORTS[0]);
+
+    const {reportkey} = useParams();
+    console.log(`Current url report param: ${reportkey}`)
+
+    useEffect(() => {
+        if (reportkey) {
+            const parsedReport = parseUrlReport(reportkey);
+            if (parsedReport) setCurrentReport(parsedReport);
+        }
+    }, [reportkey])
+
 
     if (props.currentSubscription) {
         const resourceGraphClient = new ResourceGraph(props.azureClient, [props.currentSubscription.subscriptionId])
@@ -31,11 +44,19 @@ export const Resources: React.FunctionComponent<Props> = (props: Props) => {
         )
     }
     return (
+
         <div style={{padding: 10}}>
             Please, select a subscription for resources view
         </div>
     )
 };
+
+const parseUrlReport = (urlReportKey: string): Report | void => {
+    for (const report of REPORTS) {
+        if (report.key === urlReportKey)
+            return report;
+    }
+}
 
 const getAzResourceClient = (report: Report, azureClient: ServiceClientCredentials, subscription: Subscription) => {
     return AzureResourceFactory.create(report.type, azureClient, subscription.subscriptionId)
