@@ -1,11 +1,12 @@
 import * as React from "react";
 
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
-import {Subscription, TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
+import {Subscription} from "@azure/arm-subscriptions/esm/models";
 import {SubscriptionSelect} from "./SubscriptionSelect";
 import {DirectorySelect} from "./DirectorySelect";
 import ItemsStorage from "../../Utils/Storage";
 import {getServiceClient} from "../../../AzureService/Account/Login";
+import {Tenant} from "../../../AzureService/Account/AzTenants";
 
 interface Props {
     azureClient: ServiceClientCredentials;
@@ -15,11 +16,11 @@ interface Props {
 }
 
 interface State {
-    directory?: TenantIdDescription;
+    directory?: Tenant;
     localAzureClient?: ServiceClientCredentials;
 }
 
-const recreateAzureClient = async (directoryId: TenantIdDescription): Promise<ServiceClientCredentials> => {
+const recreateAzureClient = async (directoryId: Tenant): Promise<ServiceClientCredentials> => {
     const storage = new ItemsStorage();
     const clientId = storage.getClientId();
     console.log(`[ResourcesContext] call get service client for ${directoryId.tenantId}`)

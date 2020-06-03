@@ -1,5 +1,5 @@
 import {SubscriptionClient} from "@azure/arm-subscriptions";
-import {Location, Subscription, TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
+import {Location, Subscription} from "@azure/arm-subscriptions/esm/models";
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
 
@@ -16,9 +16,5 @@ export class AzSubscriptions {
 
     locations = async (subscriptionId: string): Promise<Array<Location>> => {
         return await this.client.subscriptions.listLocations(subscriptionId);
-    }
-
-    tenants = async (): Promise<Array<TenantIdDescription>> => {
-        return await this.client.tenants.list();
     }
 }

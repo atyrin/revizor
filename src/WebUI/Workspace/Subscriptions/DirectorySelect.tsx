@@ -1,28 +1,29 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
-import {AzSubscriptions} from "../../../AzureService/Account/Subscriptions";
 
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
 import {Label} from 'office-ui-fabric-react/lib/Label';
 import {ComboBox, Stack} from 'office-ui-fabric-react';
-import {TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
 import {Spinner} from 'office-ui-fabric-react/lib/Spinner';
+import {AzTenants, Tenant} from "../../../AzureService/Account/AzTenants";
 
 interface Props {
     azureClient: ServiceClientCredentials;
-    currentDirectory: TenantIdDescription;
-    setDirectory: (directory: TenantIdDescription) => void;
+    currentDirectory: Tenant;
+    setDirectory: (directory: Tenant) => void;
 }
 
 
 export const DirectorySelect: React.FunctionComponent<Props> = (props: Props) => {
-    const [directories, setDirectories] = useState<TenantIdDescription[]>(null);
+    const [directories, setDirectories] = useState<Tenant[]>(null);
 
     useEffect(() => {
         if (props.azureClient) {
-            const subscriptionClient = new AzSubscriptions(props.azureClient);
-            loadDirs(subscriptionClient, setDirectories, props.currentDirectory, props.setDirectory)
+            const tenantClient = new AzTenants(props.azureClient);
+            tenantClient.list().then(tenants => console.log(tenants))
+
+            loadDirs(tenantClient, setDirectories, props.currentDirectory, props.setDirectory)
         }
     }, [props.azureClient])
 
@@ -43,13 +44,13 @@ export const DirectorySelect: React.FunctionComponent<Props> = (props: Props) =>
     )
 };
 
-const renderDirectoriesCombobox = (directories: TenantIdDescription[], currentDirectory, setDirectory: (sub: TenantIdDescription) => void) => {
+const renderDirectoriesCombobox = (directories: Tenant[], currentDirectory, setDirectory: (sub: Tenant) => void) => {
 
     if (!directories) return <Label>{"No directories loaded"}</Label>
     if (directories.length === 0) return <Label>{"Empty directories list"}</Label>
 
     const comboboxValues = directories.map(dir => {
-        return ({key: dir.id, text: dir.tenantId})
+        return ({key: dir.id, text: dir.displayName})
     })
 
     return (
@@ -66,8 +67,8 @@ const renderDirectoriesCombobox = (directories: TenantIdDescription[], currentDi
     )
 }
 
-const loadDirs = async (subscriptionClient: AzSubscriptions, setDirectories: (dirs) => void, currentDir: TenantIdDescription, setDirectory: (dir) => void) => {
-    const directories = await subscriptionClient.tenants();
+const loadDirs = async (tenantClient: AzTenants, setDirectories: (dirs) => void, currentDir: Tenant, setDirectory: (dir) => void) => {
+    const directories = await tenantClient.list();
     if (!currentDir && directories && directories.length > 0) setDirectory(directories[0])
     setDirectories(directories)
 }

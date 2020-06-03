@@ -6,13 +6,14 @@ import {ServiceClientCredentials} from "@azure/ms-rest-js";
 
 import {Label} from 'office-ui-fabric-react/lib/Label';
 import {ComboBox, DefaultButton, Stack} from 'office-ui-fabric-react';
-import {Subscription, TenantIdDescription} from "@azure/arm-subscriptions/esm/models";
+import {Subscription} from "@azure/arm-subscriptions/esm/models";
+import {Tenant} from "../../../AzureService/Account/AzTenants";
 
 interface Props {
     azureClient: ServiceClientCredentials;
     currentSubscription: Subscription;
     setSubscription: (sub: Subscription) => void;
-    directory: TenantIdDescription;
+    directory: Tenant;
 }
 
 
