@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/interface-name-prefix */
 import {Disks, Snapshots, VirtualMachines} from "@azure/arm-compute";
 import {NetworkInterfaces, NetworkSecurityGroups, PublicIPAddresses} from "@azure/arm-network";
 import {Disk, VirtualMachine} from "@azure/arm-compute/esm/models";
@@ -55,7 +56,7 @@ export class AzCommonResource implements IAzEntityResource {
     }
 
     public get = async (resourceGroupName: string, resourceName: string): Promise<VirtualMachine | PublicIPAddress | NetworkInterface> => {
-        return await this.resourceClient.get(resourceGroupName, resourceName, {expand: "instanceView"});
+        return await this.resourceClient.get(resourceGroupName, resourceName);
     }
 
     public list = async (): Promise<VirtualMachine[] | Disk[] | PublicIPAddress[] | NetworkInterface[]> => {

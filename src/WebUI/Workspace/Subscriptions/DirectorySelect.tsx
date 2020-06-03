@@ -50,7 +50,7 @@ const renderDirectoriesCombobox = (directories: Tenant[], currentDirectory, setD
     if (directories.length === 0) return <Label>{"Empty directories list"}</Label>
 
     const comboboxValues = directories.map(dir => {
-        return ({key: dir.id, text: dir.displayName})
+        return ({key: dir.id, text: `${dir.displayName} (${dir.tenantId})`})
     })
 
     return (
