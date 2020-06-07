@@ -10,16 +10,23 @@ export class AzRestClient {
     }
 
     get = async (resource: string, apiVersion: string) => {
-        return await this.common("GET", resource, apiVersion)
+        return await this.common("GET", resource, apiVersion).then(response => response.json())
     }
 
-    delete = async (resource: string, apiVersion: string) => {
+    delete = async (resource: string, apiVersion: string): Promise<Response> => {
         return await this.common("DELETE", resource, apiVersion)
     }
 
-    private common = async (method: string, resource: string, apiVersion: string) => {
+    private common = async (method: string, resource: string, apiVersion: string): Promise<Response> => {
         this.httpClient = await this.azureCredentials.signRequest(this.httpClient);
-        return await performRequest(method, constructUrl(resource, apiVersion), this.httpClient).then(response => response.json())
+        const response = await performRequest(method, constructUrl(resource, apiVersion), this.httpClient)
+        if(response.ok) return response;
+
+        const errorBody = (await response.json())["error"]
+        throw {
+            message: errorBody["message"],
+            name: errorBody["code"]
+        }
     }
 }
 
@@ -27,19 +34,19 @@ const constructUrl = (resource: string, apiVersion: string) => {
     return `${API_ENDPOINT}/${resource}?api-version=${apiVersion}`
 }
 
-const performRequest = async (method: string, url: string, httpClient: WebResource) => {
+const performRequest = async (method: string, url: string, httpClient: WebResource): Promise<Response> => {
     const httpClientHeaders: HeadersInit = {};
     httpClient.headers.headersArray().forEach(header => httpClientHeaders[header.name] = header.value)
 
     return await fetch(url, {
 
-        method: method, // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
+        method: method,
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
         headers: httpClientHeaders,
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *client
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
         //body: JSON.stringify(data)
     })
 }
