@@ -29,4 +29,15 @@ export class TableItem {
             throw e as Error
         }
     }
+
+    public details = async () => {
+        console.log(`Get details for item:[${this.name}] from [${this.resourceGroup}]`)
+        try {
+            return await this.resourceClient.get(this.resourceGroup, this.name)
+        } catch (e) {
+            console.log(`Failed to remove item[${this.name}]`)
+            console.log(e)
+            throw e as Error
+        }
+    }
 }

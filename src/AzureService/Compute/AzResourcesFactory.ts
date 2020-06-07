@@ -3,8 +3,32 @@ import {NetworkInterfaces, NetworkManagementClient, NetworkSecurityGroups, Publi
 import {ResourceGroups, ResourceManagementClient} from "@azure/arm-resources";
 import {ServiceClientCredentials} from "@azure/ms-rest-js";
 import {AzResourceTypes} from "./AzResourceTypes";
+import {AzContainerResource} from "./AzResource/AzContainerResource";
+import {AzDiskResource} from "./AzResource/AzDiskResource";
+import {AzCommonResource, IAzResource} from "./AzResource/AzResource";
 
-export class AzResourcesClientFactory {
+
+export class AzureResourceFactory {
+    public static create(type: AzResourceTypes, azureClient: ServiceClientCredentials, subscriptionId: string): IAzResource {
+        const azureResourceClient = AzResourcesFactory.create(type, azureClient, subscriptionId);
+        switch (type) {
+            case AzResourceTypes.VirtualMachine:
+            case AzResourceTypes.NetworkInterface:
+            case AzResourceTypes.NetworkSecurityGroup:
+            case AzResourceTypes.PublicIP:
+                return new AzCommonResource(azureResourceClient as VirtualMachines | NetworkInterfaces | PublicIPAddresses | NetworkSecurityGroups);
+            case AzResourceTypes.ResourceGroup:
+                return new AzContainerResource(azureResourceClient as ResourceGroups);
+            case AzResourceTypes.ManagedDisk:
+            case AzResourceTypes.ManagedSnapshot:
+                return new AzDiskResource(azureResourceClient as Disks | Snapshots);
+            default:
+                throw new Error("Unknown Azure Resource")
+        }
+    }
+}
+
+class AzResourcesFactory {
 
     public static create(type: AzResourceTypes, azureClient: ServiceClientCredentials, subscriptionId: string): VirtualMachines | Disks | Snapshots | NetworkInterfaces | PublicIPAddresses | NetworkSecurityGroups | ResourceGroups {
         switch (type) {

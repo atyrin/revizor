@@ -6,10 +6,11 @@ import ResourceGraph from "../../AzureService/ResourceGraph/ResourceGraph";
 import {ComboBox, Stack} from "office-ui-fabric-react";
 import {Report, REPORTS} from "./Reports";
 import AzCommonAboundedResource from "./ResourceTables/AzCommonAboundedResource";
-import {AzureResourceFactory, IAzResource} from "../../AzureService/Compute/AzResource/AzResource";
+import {IAzResource} from "../../AzureService/Compute/AzResource/AzResource";
 
 import {useParams} from "react-router-dom";
 import {Label} from "office-ui-fabric-react/lib/Label";
+import {AzureResourceFactory} from "../../AzureService/Compute/AzResourcesFactory";
 
 
 interface Props {

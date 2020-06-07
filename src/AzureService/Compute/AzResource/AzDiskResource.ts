@@ -25,5 +25,4 @@ export class AzDiskResource implements IAzEntityResource {
     public listByResourceGroup = async (resourceGroupName: string): Promise<Snapshot[] | Disk[]> => {
         return this.resourceClient.listByResourceGroup(resourceGroupName);
     }
-
 }

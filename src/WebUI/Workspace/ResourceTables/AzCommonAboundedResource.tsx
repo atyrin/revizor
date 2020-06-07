@@ -8,6 +8,7 @@ import {OperationProgressPanel} from "../../Components/OperationProgressPanel";
 import {Operation} from "../../Model/Operation";
 import {TableColumn, TableItem} from "../../Model/TableItem";
 import {sleep} from "../../Utils/Sleep";
+import {DetailsDialog} from "./DetailsDialog";
 
 
 interface Props {
@@ -23,6 +24,7 @@ interface State {
     isPanelCloseLocked: boolean;
     operations: Operation[];
     triggerRerender: boolean;
+    showDetails: boolean;
 }
 
 const MAX_PARALLEL_DELETE_TASKS = 5
@@ -35,7 +37,8 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
             isPanelOpen: false,
             isPanelCloseLocked: false,
             operations: [],
-            triggerRerender: false
+            triggerRerender: false,
+            showDetails: false
         }
     }
 
@@ -129,7 +132,7 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
                 {
                     buttonName: "Details",
                     action: () => {
-                        alert("TODO. Modal window with resource properties (tags, mb owner from activity log)")
+                        this.setState({showDetails: true})
                     }
                 }
             ]
@@ -151,6 +154,8 @@ export default class AzCommonAboundedResource extends React.Component<Props, Sta
                 <OperationProgressPanel isOpen={this.state.isPanelOpen} isCloseLocked={this.state.isPanelCloseLocked}
                                         closePanel={() => this.setState({isPanelOpen: false})}
                                         operations={this.state.operations}/>
+                <DetailsDialog show={this.state.showDetails} closeDialog={() => this.setState({showDetails: false})}
+                               items={this.state.items}/>
             </div>
         )
     }
